@@ -1,0 +1,13 @@
+R_DEF: Internal format may change without notice
+local
+id btnOverlay
+id btnStartService
+id overlayView
+id previewView
+id tvGesture
+id tvStatus
+layout activity_main
+string accessibility_description
+string app_name
+style Theme.Fliq
+xml accessibility_service_config

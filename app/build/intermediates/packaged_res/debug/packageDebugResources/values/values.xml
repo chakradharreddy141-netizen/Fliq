@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_description">Fliq uses accessibility services to translate your hand gestures (like pinch or victory) into phone controls like scrolling or opening apps. It runs locally and requires this permission to simulate touches on your screen.</string>
+    <string name="app_name">Fliq</string>
+    <style name="Theme.Fliq" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#00FF88</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+    </style>
+</resources>

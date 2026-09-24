@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Fliq</string>
+    <string name="accessibility_description">Fliq uses accessibility services to translate your hand gestures (like pinch or victory) into phone controls like scrolling or opening apps. It runs locally and requires this permission to simulate touches on your screen.</string>
+</resources>
