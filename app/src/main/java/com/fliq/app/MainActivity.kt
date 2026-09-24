@@ -105,6 +105,16 @@ class MainActivity : AppCompatActivity(), HandTrackingHelper.Listener {
             // Finish MainActivity so the background service can use the camera
             finish()
         }
+
+        binding.btnStopService.setOnClickListener {
+            stopService(Intent(this, GestureForegroundService::class.java))
+            Toast.makeText(this, "Background Service Stopped", Toast.LENGTH_SHORT).show()
+            
+            // Re-bind camera so preview works again in the main app
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                startCamera()
+            }
+        }
     }
 
     private fun startCamera() {
