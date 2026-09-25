@@ -13,35 +13,45 @@ class SettingsActivity : AppCompatActivity() {
 
         refreshLabels()
 
-        findViewById<android.view.View>(R.id.rowVictory).setOnClickListener {
-            showActionPicker("Victory") { action ->
-                GesturePreferences.setVictoryAction(this, action)
-                refreshLabels()
-            }
-        }
+        setupRow(R.id.rowILoveYou, "I Love You", GesturePreferences.KEY_I_LOVE_YOU)
+        setupRow(R.id.rowThumbUp, "Thumb Up", GesturePreferences.KEY_THUMB_UP)
+        setupRow(R.id.rowThumbDown, "Thumb Down", GesturePreferences.KEY_THUMB_DOWN)
+        setupRow(R.id.rowClosedFist, "Closed Fist", GesturePreferences.KEY_CLOSED_FIST)
+        setupRow(R.id.rowOpenPalm, "Open Palm", GesturePreferences.KEY_OPEN_PALM)
+        setupRow(R.id.rowVictory, "Victory", GesturePreferences.KEY_VICTORY)
+        setupRow(R.id.rowPointingUp, "Pointing Up", GesturePreferences.KEY_POINTING_UP)
+    }
 
-        findViewById<android.view.View>(R.id.rowPointingUp).setOnClickListener {
-            showActionPicker("Pointing Up") { action ->
-                GesturePreferences.setPointingUpAction(this, action)
-                refreshLabels()
-            }
-        }
-
-        findViewById<android.view.View>(R.id.rowPinch).setOnClickListener {
-            showActionPicker("Pinch") { action ->
-                GesturePreferences.setPinchAction(this, action)
+    private fun setupRow(rowId: Int, gestureName: String, prefKey: String) {
+        findViewById<android.view.View>(rowId).setOnClickListener {
+            showActionPicker(gestureName) { action ->
+                GesturePreferences.setActionForGesture(this, prefKey, action)
                 refreshLabels()
             }
         }
     }
 
     private fun refreshLabels() {
-        findViewById<TextView>(R.id.tvVictoryAction).text =
-            GesturePreferences.getActionLabel(GesturePreferences.getVictoryAction(this))
-        findViewById<TextView>(R.id.tvPointingUpAction).text =
-            GesturePreferences.getActionLabel(GesturePreferences.getPointingUpAction(this))
-        findViewById<TextView>(R.id.tvPinchAction).text =
-            GesturePreferences.getActionLabel(GesturePreferences.getPinchAction(this))
+        findViewById<TextView>(R.id.tvILoveYouAction).text = GesturePreferences.getActionLabel(
+            GesturePreferences.getActionForGesture(this, GesturePreferences.KEY_I_LOVE_YOU, GesturePreferences.ACTION_PAUSE_RESUME))
+            
+        findViewById<TextView>(R.id.tvThumbUpAction).text = GesturePreferences.getActionLabel(
+            GesturePreferences.getActionForGesture(this, GesturePreferences.KEY_THUMB_UP, GesturePreferences.ACTION_SCROLL_UP))
+            
+        findViewById<TextView>(R.id.tvThumbDownAction).text = GesturePreferences.getActionLabel(
+            GesturePreferences.getActionForGesture(this, GesturePreferences.KEY_THUMB_DOWN, GesturePreferences.ACTION_SCROLL_DOWN))
+            
+        findViewById<TextView>(R.id.tvClosedFistAction).text = GesturePreferences.getActionLabel(
+            GesturePreferences.getActionForGesture(this, GesturePreferences.KEY_CLOSED_FIST, GesturePreferences.ACTION_BACK))
+            
+        findViewById<TextView>(R.id.tvOpenPalmAction).text = GesturePreferences.getActionLabel(
+            GesturePreferences.getActionForGesture(this, GesturePreferences.KEY_OPEN_PALM, GesturePreferences.ACTION_HOME))
+            
+        findViewById<TextView>(R.id.tvVictoryAction).text = GesturePreferences.getActionLabel(
+            GesturePreferences.getActionForGesture(this, GesturePreferences.KEY_VICTORY, GesturePreferences.ACTION_OPEN_WHATSAPP))
+            
+        findViewById<TextView>(R.id.tvPointingUpAction).text = GesturePreferences.getActionLabel(
+            GesturePreferences.getActionForGesture(this, GesturePreferences.KEY_POINTING_UP, GesturePreferences.ACTION_OPEN_INSTAGRAM))
     }
 
     private fun showActionPicker(gestureName: String, onSelected: (String) -> Unit) {

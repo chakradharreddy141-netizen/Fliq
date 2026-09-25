@@ -5,11 +5,17 @@ import android.content.SharedPreferences
 
 object GesturePreferences {
     private const val PREF_NAME = "fliq_gesture_prefs"
-    private const val KEY_VICTORY = "gesture_victory"
-    private const val KEY_POINTING_UP = "gesture_pointing_up"
-    private const val KEY_PINCH = "gesture_pinch"
+    
+    // Gestures
+    const val KEY_VICTORY = "gesture_victory"
+    const val KEY_POINTING_UP = "gesture_pointing_up"
+    const val KEY_THUMB_UP = "gesture_thumb_up"
+    const val KEY_THUMB_DOWN = "gesture_thumb_down"
+    const val KEY_CLOSED_FIST = "gesture_closed_fist"
+    const val KEY_OPEN_PALM = "gesture_open_palm"
+    const val KEY_I_LOVE_YOU = "gesture_i_love_you"
 
-    // Action constants
+    // Action constants (Apps)
     const val ACTION_OPEN_WHATSAPP = "open_whatsapp"
     const val ACTION_OPEN_INSTAGRAM = "open_instagram"
     const val ACTION_OPEN_YOUTUBE = "open_youtube"
@@ -20,6 +26,8 @@ object GesturePreferences {
     const val ACTION_OPEN_PHONE = "open_phone"
     const val ACTION_OPEN_MESSAGES = "open_messages"
     const val ACTION_OPEN_SETTINGS = "open_settings"
+    
+    // Action constants (Utilities & System)
     const val ACTION_TOGGLE_TORCH = "toggle_torch"
     const val ACTION_SCREENSHOT = "take_screenshot"
     const val ACTION_PLAY_PAUSE = "play_pause_media"
@@ -32,8 +40,18 @@ object GesturePreferences {
     const val ACTION_GOOGLE_ASSISTANT = "open_google_assistant"
     const val ACTION_VOLUME_UP = "volume_up"
     const val ACTION_VOLUME_DOWN = "volume_down"
+    
+    // Action constants (Navigation & Fliq)
+    const val ACTION_SCROLL_UP = "scroll_up"
+    const val ACTION_SCROLL_DOWN = "scroll_down"
+    const val ACTION_SCROLL_LEFT = "scroll_left"
+    const val ACTION_SCROLL_RIGHT = "scroll_right"
+    const val ACTION_BACK = "navigate_back"
+    const val ACTION_HOME = "navigate_home"
+    const val ACTION_PAUSE_RESUME = "pause_resume_fliq"
 
     val ALL_ACTIONS = listOf(
+        // Apps
         ACTION_OPEN_WHATSAPP to "Open WhatsApp",
         ACTION_OPEN_INSTAGRAM to "Open Instagram",
         ACTION_OPEN_YOUTUBE to "Open YouTube",
@@ -44,6 +62,17 @@ object GesturePreferences {
         ACTION_OPEN_PHONE to "Open Phone Dialer",
         ACTION_OPEN_MESSAGES to "Open Messages",
         ACTION_OPEN_SETTINGS to "Open Settings",
+        
+        // Fliq & Navigation
+        ACTION_SCROLL_UP to "Scroll Up \u2B06\uFE0F",
+        ACTION_SCROLL_DOWN to "Scroll Down \u2B07\uFE0F",
+        ACTION_SCROLL_LEFT to "Scroll Left \u2B05\uFE0F",
+        ACTION_SCROLL_RIGHT to "Scroll Right \u27A1\uFE0F",
+        ACTION_BACK to "Go Back \u2B05\uFE0F",
+        ACTION_HOME to "Go Home \uD83C\uDFE0",
+        ACTION_PAUSE_RESUME to "Pause/Resume Fliq \u23F8\uFE0F",
+        
+        // Utilities & System
         ACTION_TOGGLE_TORCH to "Toggle Flashlight \uD83D\uDD26",
         ACTION_SCREENSHOT to "Take Screenshot \uD83D\uDCF8",
         ACTION_PLAY_PAUSE to "Play/Pause Media \u23EF\uFE0F",
@@ -61,23 +90,11 @@ object GesturePreferences {
     private fun getPrefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
-    fun getVictoryAction(context: Context): String =
-        getPrefs(context).getString(KEY_VICTORY, ACTION_OPEN_WHATSAPP) ?: ACTION_OPEN_WHATSAPP
+    fun getActionForGesture(context: Context, gestureKey: String, defaultAction: String): String =
+        getPrefs(context).getString(gestureKey, defaultAction) ?: defaultAction
 
-    fun getPointingUpAction(context: Context): String =
-        getPrefs(context).getString(KEY_POINTING_UP, ACTION_OPEN_INSTAGRAM) ?: ACTION_OPEN_INSTAGRAM
-
-    fun getPinchAction(context: Context): String =
-        getPrefs(context).getString(KEY_PINCH, ACTION_SCREENSHOT) ?: ACTION_SCREENSHOT
-
-    fun setVictoryAction(context: Context, action: String) =
-        getPrefs(context).edit().putString(KEY_VICTORY, action).apply()
-
-    fun setPointingUpAction(context: Context, action: String) =
-        getPrefs(context).edit().putString(KEY_POINTING_UP, action).apply()
-
-    fun setPinchAction(context: Context, action: String) =
-        getPrefs(context).edit().putString(KEY_PINCH, action).apply()
+    fun setActionForGesture(context: Context, gestureKey: String, action: String) =
+        getPrefs(context).edit().putString(gestureKey, action).apply()
 
     fun getActionLabel(actionKey: String): String =
         ALL_ACTIONS.find { it.first == actionKey }?.second ?: actionKey

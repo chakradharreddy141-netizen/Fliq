@@ -1,141 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#121212"
-    android:padding="24dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="⚙️ Gesture Settings"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tap a gesture to change its action"
-        android:textColor="#AAAAAA"
-        android:textSize="14sp"
-        android:layout_marginBottom="32dp" />
-
-    <!-- Victory Gesture Row -->
+    android:background="#121212">
+    
     <LinearLayout
-        android:id="@+id/rowVictory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#1E1E1E"
-        android:padding="20dp"
-        android:layout_marginBottom="12dp"
-        android:clickable="true"
-        android:focusable="true">
+        android:padding="24dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="✌️ Victory (Peace Sign)"
-            android:textColor="#4FC3F7"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:text="⚙️ Gesture Settings"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
         <TextView
-            android:id="@+id/tvVictoryAction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open WhatsApp"
-            android:textColor="#CCCCCC"
-            android:textSize="15sp"
-            android:layout_marginTop="4dp" />
+            android:text="Tap any gesture to change its action."
+            android:textColor="#AAAAAA"
+            android:textSize="14sp"
+            android:layout_marginBottom="32dp" />
+
+        <!-- ILoveYou Gesture Row -->
+        <LinearLayout
+            android:id="@+id/rowILoveYou"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="🤟 I Love You" android:textColor="#4FC3F7" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvILoveYouAction" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Loading..." android:textColor="#CCCCCC" android:textSize="15sp" android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Thumb Up Gesture Row -->
+        <LinearLayout
+            android:id="@+id/rowThumbUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="👍 Thumb Up" android:textColor="#4FC3F7" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvThumbUpAction" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Loading..." android:textColor="#CCCCCC" android:textSize="15sp" android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Thumb Down Gesture Row -->
+        <LinearLayout
+            android:id="@+id/rowThumbDown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="👎 Thumb Down" android:textColor="#4FC3F7" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvThumbDownAction" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Loading..." android:textColor="#CCCCCC" android:textSize="15sp" android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Closed Fist Gesture Row -->
+        <LinearLayout
+            android:id="@+id/rowClosedFist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="✊ Closed Fist" android:textColor="#4FC3F7" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvClosedFistAction" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Loading..." android:textColor="#CCCCCC" android:textSize="15sp" android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Open Palm Gesture Row -->
+        <LinearLayout
+            android:id="@+id/rowOpenPalm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="🖐️ Open Palm" android:textColor="#4FC3F7" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvOpenPalmAction" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Loading..." android:textColor="#CCCCCC" android:textSize="15sp" android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Victory Gesture Row -->
+        <LinearLayout
+            android:id="@+id/rowVictory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="✌️ Victory (Peace Sign)" android:textColor="#4FC3F7" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvVictoryAction" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Loading..." android:textColor="#CCCCCC" android:textSize="15sp" android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Pointing Up Gesture Row -->
+        <LinearLayout
+            android:id="@+id/rowPointingUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="48dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="☝️ Pointing Up" android:textColor="#4FC3F7" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvPointingUpAction" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Loading..." android:textColor="#CCCCCC" android:textSize="15sp" android:layout_marginTop="4dp" />
+        </LinearLayout>
+
     </LinearLayout>
-
-    <!-- Pointing Up Gesture Row -->
-    <LinearLayout
-        android:id="@+id/rowPointingUp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#1E1E1E"
-        android:padding="20dp"
-        android:layout_marginBottom="12dp"
-        android:clickable="true"
-        android:focusable="true">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="☝️ Pointing Up"
-            android:textColor="#4FC3F7"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvPointingUpAction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Open Instagram"
-            android:textColor="#CCCCCC"
-            android:textSize="15sp"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
-
-    <!-- Pinch Gesture Row -->
-    <LinearLayout
-        android:id="@+id/rowPinch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#1E1E1E"
-        android:padding="20dp"
-        android:layout_marginBottom="24dp"
-        android:clickable="true"
-        android:focusable="true">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🤏 Pinch"
-            android:textColor="#4FC3F7"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvPinchAction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Take Screenshot"
-            android:textColor="#CCCCCC"
-            android:textSize="15sp"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
-
-    <!-- Divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#333333"
-        android:layout_marginBottom="24dp" />
-
-    <!-- Fixed Gestures Info -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Fixed Gestures"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="👍 Thumb Up → Scroll Up\n👎 Thumb Down → Scroll Down\n✊ Closed Fist → Go Back\n🖐️ Open Palm → Go Home\n🤟 I Love You → Pause / Resume Fliq"
-        android:textColor="#999999"
-        android:textSize="14sp"
-        android:lineSpacingMultiplier="1.5" />
-
-</LinearLayout>
+</ScrollView>

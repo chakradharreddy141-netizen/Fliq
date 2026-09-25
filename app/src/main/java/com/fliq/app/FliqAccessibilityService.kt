@@ -17,7 +17,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.sqrt
 
 class FliqAccessibilityService : AccessibilityService() {
 
@@ -29,7 +28,7 @@ class FliqAccessibilityService : AccessibilityService() {
     private var isTorchOn = false
     private var lastLoggedGesture = ""
 
-    // Custom Toast Overlay for reliable background display on strict OS (Realme/Oppo)
+    // Custom Toast Overlay
     private var toastView: android.widget.TextView? = null
     private var toastHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val hideToastRunnable = Runnable { toastView?.visibility = android.view.View.GONE }
@@ -37,10 +36,7 @@ class FliqAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         Log.d(TAG, "Accessibility Service Connected")
-
-        GestureBridge.setAccessibilityListener { gesture, landmarks ->
-            handleGesture(gesture, landmarks)
-        }
+        GestureBridge.setAccessibilityListener { gesture, landmarks -> handleGesture(gesture, landmarks) }
     }
 
     private fun showToast(message: String) {
@@ -68,113 +64,95 @@ class FliqAccessibilityService : AccessibilityService() {
                             gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
                             y = 200
                         }
-
                         val wm = getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
                         wm.addView(this, layoutParams)
                     }
                 }
-
                 toastView?.text = message
                 toastView?.visibility = android.view.View.VISIBLE
-
                 toastHandler.removeCallbacks(hideToastRunnable)
                 toastHandler.postDelayed(hideToastRunnable, 2000)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to show custom toast: ${e.message}")
+                Log.e(TAG, "Failed to show toast: ${e.message}")
             }
         }
     }
 
-    // Pinch detection: thumb tip (4) close to index tip (8)
-    private fun isPinch(landmarks: List<NormalizedLandmark>): Boolean {
-        if (landmarks.size < 21) return false
-        val thumbTip = landmarks[4]
-        val indexTip = landmarks[8]
-        val dx = thumbTip.x() - indexTip.x()
-        val dy = thumbTip.y() - indexTip.y()
-        val distance = sqrt((dx * dx + dy * dy).toDouble())
-        return distance < 0.06
-    }
-
     private fun handleGesture(gesture: String, landmarks: List<NormalizedLandmark>) {
         if (gesture != "None" && gesture != lastLoggedGesture) {
-            Log.d(TAG, "Detected new gesture: $gesture")
+            Log.d(TAG, "Detected gesture: $gesture")
             lastLoggedGesture = gesture
         }
+        if (gesture == "None") return
 
-        // ILoveYou toggle always works (even when paused)
-        if (gesture == "ILoveYou") {
-            val now = SystemClock.uptimeMillis()
+        val now = SystemClock.uptimeMillis()
+
+        // Map gesture string to preference key
+        val prefKey = when (gesture) {
+            "ILoveYou" -> GesturePreferences.KEY_I_LOVE_YOU
+            "Thumb_Up" -> GesturePreferences.KEY_THUMB_UP
+            "Thumb_Down" -> GesturePreferences.KEY_THUMB_DOWN
+            "Closed_Fist" -> GesturePreferences.KEY_CLOSED_FIST
+            "Open_Palm" -> GesturePreferences.KEY_OPEN_PALM
+            "Victory" -> GesturePreferences.KEY_VICTORY
+            "Pointing_Up" -> GesturePreferences.KEY_POINTING_UP
+            else -> return
+        }
+
+        // Get configured action for this gesture
+        val defaultAction = when (prefKey) {
+            GesturePreferences.KEY_I_LOVE_YOU -> GesturePreferences.ACTION_PAUSE_RESUME
+            GesturePreferences.KEY_THUMB_UP -> GesturePreferences.ACTION_SCROLL_UP
+            GesturePreferences.KEY_THUMB_DOWN -> GesturePreferences.ACTION_SCROLL_DOWN
+            GesturePreferences.KEY_CLOSED_FIST -> GesturePreferences.ACTION_BACK
+            GesturePreferences.KEY_OPEN_PALM -> GesturePreferences.ACTION_HOME
+            GesturePreferences.KEY_VICTORY -> GesturePreferences.ACTION_OPEN_WHATSAPP
+            GesturePreferences.KEY_POINTING_UP -> GesturePreferences.ACTION_OPEN_INSTAGRAM
+            else -> return
+        }
+        
+        val action = GesturePreferences.getActionForGesture(this, prefKey, defaultAction)
+
+        // Always allow pause/resume even if app is paused
+        if (action == GesturePreferences.ACTION_PAUSE_RESUME) {
             if (now - lastToggleTime > 2000) {
                 lastToggleTime = now
                 isFliqPaused = !isFliqPaused
                 val status = if (isFliqPaused) "Paused" else "Resumed"
-                showToast("Fliq $status \uD83E\uDD1F")
+                val emoji = getEmojiForGesture(gesture)
+                showToast("Fliq $status $emoji")
             }
             return
         }
 
         if (isFliqPaused) return
 
-        val now = SystemClock.uptimeMillis()
+        // Set cooldown based on action type
+        val cooldown = if (action.startsWith("scroll_")) 1000L else 3000L
 
-        // Check pinch first (landmark-based, not a built-in MediaPipe gesture)
-        // Only trigger if MediaPipe didn't classify it as Closed_Fist to avoid conflicts
-        if (isPinch(landmarks) && gesture != "Closed_Fist") {
-            if (now - lastScrollTime > 3000) {
-                lastScrollTime = now
-                val action = GesturePreferences.getPinchAction(this)
-                showToast("${GesturePreferences.getActionLabel(action)} \uD83E\uDD0F")
-                executeAction(action)
+        if (now - lastScrollTime > cooldown) {
+            lastScrollTime = now
+            val emoji = getEmojiForGesture(gesture)
+            val label = GesturePreferences.getActionLabel(action)
+            
+            if (!action.startsWith("scroll_")) {
+                showToast("$label $emoji")
             }
-            return
+            
+            executeAction(action)
         }
+    }
 
-        when (gesture) {
-            "Victory" -> {
-                if (now - lastScrollTime > 3000) {
-                    lastScrollTime = now
-                    val action = GesturePreferences.getVictoryAction(this)
-                    showToast("${GesturePreferences.getActionLabel(action)} \u270C\uFE0F")
-                    executeAction(action)
-                }
-            }
-            "Pointing_Up" -> {
-                if (now - lastScrollTime > 3000) {
-                    lastScrollTime = now
-                    val action = GesturePreferences.getPointingUpAction(this)
-                    showToast("${GesturePreferences.getActionLabel(action)} \u261D\uFE0F")
-                    executeAction(action)
-                }
-            }
-            "Thumb_Up" -> {
-                if (now - lastScrollTime > 1000) {
-                    lastScrollTime = now
-                    showToast("Scrolling Up \uD83D\uDC4D")
-                    performScroll(scrollUp = true)
-                }
-            }
-            "Thumb_Down" -> {
-                if (now - lastScrollTime > 1000) {
-                    lastScrollTime = now
-                    showToast("Scrolling Down \uD83D\uDC4E")
-                    performScroll(scrollUp = false)
-                }
-            }
-            "Closed_Fist" -> {
-                if (now - lastScrollTime > 2000) {
-                    lastScrollTime = now
-                    showToast("Going Back \u270A")
-                    performGlobalAction(GLOBAL_ACTION_BACK)
-                }
-            }
-            "Open_Palm" -> {
-                if (now - lastScrollTime > 2000) {
-                    lastScrollTime = now
-                    showToast("Going Home \uD83D\uDD90\uFE0F")
-                    performGlobalAction(GLOBAL_ACTION_HOME)
-                }
-            }
+    private fun getEmojiForGesture(gesture: String): String {
+        return when (gesture) {
+            "ILoveYou" -> "\uD83E\uDD1F"
+            "Thumb_Up" -> "\uD83D\uDC4D"
+            "Thumb_Down" -> "\uD83D\uDC4E"
+            "Closed_Fist" -> "\u270A"
+            "Open_Palm" -> "\uD83D\uDD90\uFE0F"
+            "Victory" -> "\u270C\uFE0F"
+            "Pointing_Up" -> "\u261D\uFE0F"
+            else -> ""
         }
     }
 
@@ -184,24 +162,19 @@ class FliqAccessibilityService : AccessibilityService() {
             GesturePreferences.ACTION_OPEN_INSTAGRAM -> openApp("com.instagram.android")
             GesturePreferences.ACTION_OPEN_YOUTUBE -> openApp("com.google.android.youtube")
             GesturePreferences.ACTION_OPEN_CAMERA -> {
-                val intent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                try { startActivity(intent) } catch (e: Exception) { Log.e(TAG, "Camera launch failed: ${e.message}") }
+                val intent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                try { startActivity(intent) } catch (e: Exception) { Log.e(TAG, "Failed: ${e.message}") }
             }
             GesturePreferences.ACTION_OPEN_CHROME -> openApp("com.android.chrome")
             GesturePreferences.ACTION_OPEN_SPOTIFY -> openApp("com.spotify.music")
             GesturePreferences.ACTION_OPEN_MAPS -> openApp("com.google.android.apps.maps")
             GesturePreferences.ACTION_OPEN_PHONE -> {
                 val intent = Intent(Intent.ACTION_DIAL).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-                try { startActivity(intent) } catch (e: Exception) { Log.e(TAG, "Phone launch failed: ${e.message}") }
+                try { startActivity(intent) } catch (e: Exception) { Log.e(TAG, "Failed: ${e.message}") }
             }
             GesturePreferences.ACTION_OPEN_MESSAGES -> {
-                val intent = Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_APP_MESSAGING)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                try { startActivity(intent) } catch (e: Exception) { Log.e(TAG, "Messages launch failed: ${e.message}") }
+                val intent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_APP_MESSAGING); addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                try { startActivity(intent) } catch (e: Exception) { Log.e(TAG, "Failed: ${e.message}") }
             }
             GesturePreferences.ACTION_OPEN_SETTINGS -> {
                 val intent = Intent(android.provider.Settings.ACTION_SETTINGS).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
@@ -209,11 +182,8 @@ class FliqAccessibilityService : AccessibilityService() {
             }
             GesturePreferences.ACTION_TOGGLE_TORCH -> toggleTorch()
             GesturePreferences.ACTION_SCREENSHOT -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
-                } else {
-                    showToast("Screenshot requires Android 9+")
-                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+                else showToast("Screenshot requires Android 9+")
             }
             GesturePreferences.ACTION_PLAY_PAUSE -> dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
             GesturePreferences.ACTION_NEXT_TRACK -> dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
@@ -222,15 +192,12 @@ class FliqAccessibilityService : AccessibilityService() {
             GesturePreferences.ACTION_QUICK_SETTINGS -> performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
             GesturePreferences.ACTION_RECENT_APPS -> performGlobalAction(GLOBAL_ACTION_RECENTS)
             GesturePreferences.ACTION_LOCK_SCREEN -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
-                } else {
-                    showToast("Lock Screen requires Android 9+")
-                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+                else showToast("Lock Screen requires Android 9+")
             }
             GesturePreferences.ACTION_GOOGLE_ASSISTANT -> {
                 val intent = Intent(Intent.ACTION_VOICE_COMMAND).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-                try { startActivity(intent) } catch (e: Exception) { Log.e(TAG, "Assistant launch failed: ${e.message}") }
+                try { startActivity(intent) } catch (e: Exception) { Log.e(TAG, "Failed: ${e.message}") }
             }
             GesturePreferences.ACTION_VOLUME_UP -> {
                 val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -240,18 +207,22 @@ class FliqAccessibilityService : AccessibilityService() {
                 val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
                 audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
             }
+            GesturePreferences.ACTION_BACK -> performGlobalAction(GLOBAL_ACTION_BACK)
+            GesturePreferences.ACTION_HOME -> performGlobalAction(GLOBAL_ACTION_HOME)
+            GesturePreferences.ACTION_SCROLL_UP -> performScroll(0f, 1f)
+            GesturePreferences.ACTION_SCROLL_DOWN -> performScroll(0f, -1f)
+            GesturePreferences.ACTION_SCROLL_LEFT -> performScroll(1f, 0f)
+            GesturePreferences.ACTION_SCROLL_RIGHT -> performScroll(-1f, 0f)
         }
     }
 
     private fun openApp(packageName: String) {
-        Log.d(TAG, "Opening $packageName...")
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         } else {
             showToast("App not installed")
-            Log.e(TAG, "$packageName not installed")
         }
     }
 
@@ -259,14 +230,11 @@ class FliqAccessibilityService : AccessibilityService() {
         try {
             val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
             val cameraId = cameraManager.cameraIdList.firstOrNull { id ->
-                cameraManager.getCameraCharacteristics(id)
-                    .get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+                cameraManager.getCameraCharacteristics(id).get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
             }
             if (cameraId != null) {
                 isTorchOn = !isTorchOn
                 cameraManager.setTorchMode(cameraId, isTorchOn)
-            } else {
-                showToast("No flashlight available")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Torch toggle failed: ${e.message}")
@@ -279,33 +247,36 @@ class FliqAccessibilityService : AccessibilityService() {
         audio.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
     }
 
-    private fun performScroll(scrollUp: Boolean) {
+    // Scroll by specifying direction vectors (-1 to 1)
+    private fun performScroll(dirX: Float, dirY: Float) {
         if (isScrolling) return
-
         isScrolling = true
 
-        val displayMetrics = resources.displayMetrics
-        val centerX = displayMetrics.widthPixels / 2f
-        val centerY = displayMetrics.heightPixels / 2f
-        val scrollDistance = displayMetrics.heightPixels / 3f
+        val metrics = resources.displayMetrics
+        val centerX = metrics.widthPixels / 2f
+        val centerY = metrics.heightPixels / 2f
+        
+        // Distance is 1/3 of the screen dimension
+        val distY = metrics.heightPixels / 3f
+        val distX = metrics.widthPixels / 3f
 
-        val startY = if (scrollUp) centerY - (scrollDistance / 2) else centerY + (scrollDistance / 2)
-        val endY = if (scrollUp) centerY + (scrollDistance / 2) else centerY - (scrollDistance / 2)
+        // Start opposite to direction to scroll "towards" direction
+        val startX = centerX - (dirX * distX / 2)
+        val startY = centerY - (dirY * distY / 2)
+        val endX = centerX + (dirX * distX / 2)
+        val endY = centerY + (dirY * distY / 2)
 
         val path = Path().apply {
-            moveTo(centerX, startY)
-            lineTo(centerX, endY)
+            moveTo(startX, startY)
+            lineTo(endX, endY)
         }
 
-        val gestureBuilder = GestureDescription.Builder()
-        gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, 0, 300))
+        val stroke = GestureDescription.StrokeDescription(path, 0, 300)
+        val builder = GestureDescription.Builder().addStroke(stroke)
 
-        dispatchGesture(gestureBuilder.build(), object : GestureResultCallback() {
+        dispatchGesture(builder.build(), object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription?) {
-                coroutineScope.launch {
-                    delay(100)
-                    isScrolling = false
-                }
+                coroutineScope.launch { delay(100); isScrolling = false }
             }
             override fun onCancelled(gestureDescription: GestureDescription?) {
                 isScrolling = false
@@ -313,14 +284,8 @@ class FliqAccessibilityService : AccessibilityService() {
         }, null)
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Not used, we only trigger actions based on camera input
-    }
-
-    override fun onInterrupt() {
-        Log.d(TAG, "Accessibility Service Interrupted")
-    }
-
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
+    override fun onInterrupt() {}
     override fun onDestroy() {
         super.onDestroy()
         GestureBridge.removeAccessibilityListener()
