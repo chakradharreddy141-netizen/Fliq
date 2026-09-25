@@ -82,6 +82,10 @@ class MainActivity : AppCompatActivity(), HandTrackingHelper.Listener {
             }
         }
 
+        binding.btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
         binding.btnStartService.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "Please grant Overlay Permission first", Toast.LENGTH_SHORT).show()
