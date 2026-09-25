@@ -135,9 +135,7 @@ class FliqAccessibilityService : AccessibilityService() {
             val emoji = getEmojiForGesture(gesture)
             val label = GesturePreferences.getActionLabel(action)
             
-            if (!action.startsWith("scroll_")) {
-                showToast("$label $emoji")
-            }
+            showToast("$label $emoji")
             
             executeAction(action)
         }
