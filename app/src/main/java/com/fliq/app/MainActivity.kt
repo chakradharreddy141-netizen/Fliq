@@ -209,7 +209,9 @@ class MainActivity : AppCompatActivity(), HandTrackingHelper.Listener {
 
     override fun onDestroy() {
         super.onDestroy()
-        cameraExecutor.shutdown()
+        if (::cameraExecutor.isInitialized) {
+            cameraExecutor.shutdown()
+        }
         handTrackingHelper?.close()
     }
 
