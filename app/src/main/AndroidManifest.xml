@@ -42,6 +42,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Fliq" />
 
+        <activity
+            android:name=".TutorialActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Fliq" />
+
         <service
             android:name=".GestureForegroundService"
             android:enabled="true"

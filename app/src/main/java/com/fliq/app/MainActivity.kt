@@ -42,6 +42,14 @@ class MainActivity : AppCompatActivity(), HandTrackingHelper.Listener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        val prefs = getSharedPreferences("fliq_prefs", android.content.Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("tutorial_completed", false)) {
+            startActivity(Intent(this, TutorialActivity::class.java))
+            finish()
+            return
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
